@@ -65,13 +65,12 @@ pub async fn make_request(
     endpoint: &str,
     params: CompletionRequestParams,
 ) -> Result<reqwest::Response, reqwest::Error> {
-    let response = client
+    client
         .post(endpoint)
         .bearer_auth(api_key)
         .header(CONTENT_TYPE, "application/json")
         .header(USER_AGENT, "openai-rust/1")
         .json(&params)
         .send()
-        .await;
-    response
+        .await
 }
