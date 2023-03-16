@@ -65,7 +65,7 @@ pub async fn make_request(
     endpoint: &str,
     params: CompletionRequestParams,
 ) -> Result<reqwest::Response, reqwest::Error> {
-    return client
+    let response = client
         .post(endpoint)
         .bearer_auth(api_key)
         .header(CONTENT_TYPE, "application/json")
@@ -73,4 +73,5 @@ pub async fn make_request(
         .json(&params)
         .send()
         .await;
+    response
 }
