@@ -24,7 +24,6 @@ async fn get_completion_response(
         completion_params,
     )
     .await;
-    //let mut completion_response_params: CompletionResponseParams;
     let completion_response_body = match completion_response {
         Ok(completion_response_body) => completion_response_body.text().await.unwrap(),
         Err(e) => panic!("Error unwrapping response: {}", e),
