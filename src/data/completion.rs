@@ -1,16 +1,7 @@
-use eyre::Result;
-use reqwest::{header::CONTENT_TYPE, header::USER_AGENT, Client};
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
-#[derive(Debug, TypedBuilder)]
-pub struct Session {
-    pub api_key: String,
-    #[builder(default = "Personal".to_string())]
-    pub org_id: String,
-    #[builder(default = reqwest::Client::new())]
-    pub client: reqwest::Client,
-}
+pub const COMPLETION_ENDPOINT: &str = "https://api.openai.com/v1/completions";
 
 #[derive(Debug, Serialize, TypedBuilder, Clone)]
 pub struct CompletionRequestParams {
@@ -47,7 +38,7 @@ pub struct CompletionResponseParams {
 pub struct Choice {
     pub text: String,
     pub index: u64,
-    #[builder(setter(strip_option), default)]
+    #[builder(setter(strip_option))]
     pub logprobs: Option<i64>,
     pub finish_reason: String,
 }
@@ -57,20 +48,4 @@ pub struct Usage {
     pub prompt_tokens: u64,
     pub completion_tokens: u64,
     pub total_tokens: u64,
-}
-
-pub async fn make_request(
-    client: Client,
-    api_key: &str,
-    endpoint: &str,
-    params: CompletionRequestParams,
-) -> Result<reqwest::Response, reqwest::Error> {
-    client
-        .post(endpoint)
-        .bearer_auth(api_key)
-        .header(CONTENT_TYPE, "application/json")
-        .header(USER_AGENT, "openai-rust/1")
-        .json(&params)
-        .send()
-        .await
 }

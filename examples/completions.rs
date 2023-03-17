@@ -1,15 +1,18 @@
-mod data;
-use data::model::make_request;
-use std::env;
-use std::error::Error;
+use openai_rust::data::completion::{
+    CompletionRequestParams, CompletionResponseParams, COMPLETION_ENDPOINT,
+};
+use reqwest::Error;
 
-use crate::data::model::{CompletionRequestParams, CompletionResponseParams, Session};
+use std::env;
+
+use eyre::Result;
+use openai_rust::{OpenAIAPIRequest, Session};
 
 async fn get_completion_response(
     api_key: String,
     model: String,
     prompt: String,
-) -> Result<CompletionResponseParams, Box<dyn Error + Send + Sync>> {
+) -> Result<CompletionResponseParams, Error> {
     let session = Session::builder().api_key(api_key).build();
     let completion_params = CompletionRequestParams::builder()
         .model(model.to_string())
@@ -17,19 +20,10 @@ async fn get_completion_response(
         .max_tokens(7)
         .temperature(0.0)
         .build();
-    let completion_response = make_request(
-        session.client,
-        &session.api_key,
-        "https://api.openai.com/v1/completions",
-        completion_params,
-    )
-    .await;
-    let completion_response_body = match completion_response {
-        Ok(completion_response_body) => completion_response_body.text().await.unwrap(),
-        Err(e) => panic!("Error unwrapping response: {}", e),
-    };
-    let completion_response_params = serde_json::from_str(completion_response_body.as_str())?;
-    Ok(completion_response_params)
+
+    session
+        .make_completion_request(COMPLETION_ENDPOINT, completion_params)
+        .await
 }
 
 #[tokio::main]
