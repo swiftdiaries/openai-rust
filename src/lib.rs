@@ -1,14 +1,23 @@
 pub mod data;
 use crate::data::completion::CompletionRequestParams;
-
-use async_trait::async_trait;
 use data::{
     completion::CompletionResponseParams,
-    moderations::{ModerationRequestParams, ModerationResponseParams},
+    edit::{EditRequestParams, EditResponseParams},
+    moderation::{ModerationRequestParams, ModerationResponseParams},
 };
+
+use async_trait::async_trait;
 use eyre::Result;
 use reqwest::{header::CONTENT_TYPE, header::USER_AGENT};
+use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Usage {
+    pub prompt_tokens: u64,
+    pub completion_tokens: u64,
+    pub total_tokens: u64,
+}
 
 #[derive(Debug, TypedBuilder)]
 pub struct Session {
@@ -31,10 +40,40 @@ pub trait OpenAIAPIRequest {
         endpoint: &str,
         moderation_params: ModerationRequestParams,
     ) -> Result<ModerationResponseParams, reqwest::Error>;
+    async fn make_edit_request(
+        &self,
+        endpoint: &str,
+        edit_params: EditRequestParams,
+    ) -> Result<EditResponseParams, reqwest::Error>;
 }
 
 #[async_trait]
 impl OpenAIAPIRequest for Session {
+    async fn make_edit_request(
+        &self,
+        endpoint: &str,
+        edit_params: EditRequestParams,
+    ) -> Result<EditResponseParams, reqwest::Error> {
+        let edit_response = match self
+            .client
+            .post(endpoint)
+            .bearer_auth(&self.api_key)
+            .header(CONTENT_TYPE, "application/json")
+            .header(USER_AGENT, "openai-rust/1")
+            .json(&edit_params)
+            .send()
+            .await
+        {
+            Ok(edit_response) => edit_response,
+            Err(e) => panic!("Error getting response from API, {}", e),
+        };
+        let edit_response_params = match edit_response.json::<EditResponseParams>().await {
+            Ok(edit_response_params) => edit_response_params,
+            Err(e) => panic!("Error unwrapping JSON to Response struct, {}", e),
+        };
+        Ok(edit_response_params)
+    }
+
     async fn make_completion_request(
         &self,
         endpoint: &str,

@@ -1,11 +1,11 @@
-use openai_rust::data::completion::{
-    CompletionRequestParams, CompletionResponseParams, COMPLETION_ENDPOINT,
-};
-use reqwest::Error;
-
 use std::env;
 
 use eyre::Result;
+use reqwest::Error;
+
+use openai_rust::data::completion::{
+    CompletionRequestParams, CompletionResponseParams, COMPLETION_ENDPOINT,
+};
 use openai_rust::{OpenAIAPIRequest, Session};
 
 async fn get_completion_response(

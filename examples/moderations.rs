@@ -1,4 +1,4 @@
-use openai_rust::data::moderations::{
+use openai_rust::data::moderation::{
     ModerationRequestParams, ModerationResponseParams, MODERATION_ENDPOINT,
 };
 

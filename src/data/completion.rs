@@ -1,3 +1,4 @@
+use crate::Usage;
 use serde::{Deserialize, Serialize};
 use typed_builder::TypedBuilder;
 
@@ -24,7 +25,7 @@ pub struct CompletionRequestParams {
     pub stop: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, TypedBuilder)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CompletionResponseParams {
     pub id: String,
     pub object: String,
@@ -41,11 +42,4 @@ pub struct Choice {
     #[builder(setter(strip_option))]
     pub logprobs: Option<i64>,
     pub finish_reason: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Usage {
-    pub prompt_tokens: u64,
-    pub completion_tokens: u64,
-    pub total_tokens: u64,
 }

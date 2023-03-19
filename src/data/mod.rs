@@ -1,2 +1,3 @@
 pub mod completion;
-pub mod moderations;
+pub mod edit;
+pub mod moderation;
